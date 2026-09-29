@@ -1589,7 +1589,8 @@ public class ChatFadePlugin extends Plugin implements KeyListener
 			}
 			else
 			{
-				currentText.append(raw.charAt(pos));
+				char c = raw.charAt(pos);
+				currentText.append(c == '\n' ? ' ' : c);
 				pos++;
 			}
 		}
@@ -1597,6 +1598,20 @@ public class ChatFadePlugin extends Plugin implements KeyListener
 		if (currentText.length() > 0)
 		{
 			spans.add(new ColorSpan(currentText.toString(), currentColor));
+		}
+
+		// Strip leading space left behind by a leading icon, matching toDisplayText()
+		for (int i = 0; i < spans.size(); i++)
+		{
+			ColorSpan s = spans.get(i);
+			if (!s.isIcon())
+			{
+				if (s.getText().startsWith(" "))
+				{
+					spans.set(i, new ColorSpan(s.getText().replaceFirst("^\\s+", ""), s.getColor()));
+				}
+				break;
+			}
 		}
 
 		// Filter out empty spans, but never the icon ones — they carry no text by design.
